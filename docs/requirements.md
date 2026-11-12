@@ -81,7 +81,7 @@ Priority rule:
 - Quantity: spec says typed entry clamped to 1-999,999,999; observed no free typing and a maximum of 99 (PD-02).
 - Cart table: spec lists an Actions column; none visible (CO-01).
 - Billing: spec omits house number but the app requires it; address not prefilled for a logged-in user (check the profile has an address first); empty required fields are not highlighted (check after leaving the field) (CO-04).
-- Registration: live password rules and strength indicator do not behave as in AC3-AC4 (REG-02); hint says 8 characters while the empty-password error says 6.
+- Registration: strength indicator (AC4) lags one change behind: Abcd@124 shows nothing, deleting the A then shows Excellent; live rules (AC3) work (REG-02); hint says 8 characters while the empty-password error says 6.
 - Admin product create/edit does not save in the UI (ADM-04): confirm via API.
 - Brand and category delete/edit appear delayed in lists (ADM-02/03): automation must wait on conditions.
 - Registration via Swagger once did not appear in the DB (REG-01): retest.
