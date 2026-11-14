@@ -15,6 +15,7 @@ public class CartPage extends BasePage {
     private static final By UNIT_PRICE=byTest("product-price");
     private static final By LINE_PRICE=byTest("line-price");
     private static final By CART_TOTAL=byTest("cart-total");
+    private static final By DELETE=By.cssSelector("tr a.btn-danger");
 
     public CartPage(WebDriver driver) {
         super(driver);
@@ -59,6 +60,15 @@ public class CartPage extends BasePage {
         wait.until(d->linePriceAt(index).compareTo(lineBefore)!=0 && total().compareTo(totalBefore)!=0);
         return this;
 
+    }
+
+    public CartPage deleteItem(int index){
+        int countBefore=itemCount();
+        BigDecimal totalBefore = total();
+        wait.until(d->d.findElements(DELETE).size()>index);
+        driver.findElements(DELETE).get(index).click();
+        wait.until(d->itemCount()<countBefore && (itemCount()==0 || total().compareTo(totalBefore)!=0));
+        return this;
     }
 
 }

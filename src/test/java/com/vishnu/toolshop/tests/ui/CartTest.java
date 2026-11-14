@@ -25,4 +25,26 @@ public class CartTest extends  BaseTest{
         Assert.assertEquals(cart.total().compareTo(expected), 0, "Cart total is wrong");
 
     }
+
+    @Test(description = "TC-015 | REQ-CO-02 | Deleting an item removes it and recalculates the total")
+    public void deletingItemRemovesItAndRecalculatesTotal(){
+        HomePage page=new HomePage(driver).open();
+        String secondName=page.nameOfProduct(1);
+
+        ProductPage firstProduct=page.openProduct(0).addToCart();
+        firstProduct.addedMessage();
+        ProductPage secondProduct=new HomePage(driver).open().openProduct(1).addToCart();
+        secondProduct.addedMessage();
+
+        CartPage cart= secondProduct.goToCart();
+        Assert.assertEquals(cart.itemCount(),2,"Cart should hold two items before deleting");
+        BigDecimal remainingUnit=cart.unitPriceAt(1);
+
+        cart.deleteItem(0);
+
+        Assert.assertEquals(cart.itemCount(), 1, "One item should remain");
+        Assert.assertEquals(cart.titleAt(0), secondName, "The wrong item was removed");
+        Assert.assertEquals(cart.total().compareTo(remainingUnit), 0, "Cart total was not recalculated");
+
+    }
 }
