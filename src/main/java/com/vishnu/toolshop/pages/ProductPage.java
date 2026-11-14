@@ -24,6 +24,11 @@ public class ProductPage extends BasePage{
         return text(NAME);
     }
 
+    public CartPage goToCart(){
+        click(byTest("nav-cart"));
+        return new CartPage(driver);
+    }
+
     public BigDecimal unitPrice(){
         return new BigDecimal(text(UNIT_PRICE).replaceAll("[^0-9.]",""));
     }
