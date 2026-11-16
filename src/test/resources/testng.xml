@@ -3,6 +3,7 @@
 <suite name="Toolshop UI Suite">
     <listeners>
         <listener class-name="com.vishnu.toolshop.listeners.TestListener"/>
+        <listener class-name="com.vishnu.toolshop.listeners.RetryTransformer"/>
     </listeners>
     <test name="UI tests">
         <packages>
