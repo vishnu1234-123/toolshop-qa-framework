@@ -4,6 +4,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
+import com.vishnu.toolshop.pages.CheckoutPage;
 
 import java.math.BigDecimal;
 
@@ -69,6 +70,11 @@ public class CartPage extends BasePage {
         driver.findElements(DELETE).get(index).click();
         wait.until(d->itemCount()<countBefore && (itemCount()==0 || total().compareTo(totalBefore)!=0));
         return this;
+    }
+
+    public CheckoutPage proceedToCheckout(){
+        click(byTest("proceed-1"));
+        return new CheckoutPage(driver);
     }
 
 }

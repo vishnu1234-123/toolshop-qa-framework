@@ -6,6 +6,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.PageLoadStrategy;
 
 import java.time.Duration;
 
@@ -21,6 +22,7 @@ public final class DriverFactory {
         switch(browser){
             case "chrome" -> {
                 ChromeOptions options=new ChromeOptions();
+                options.setPageLoadStrategy(PageLoadStrategy.EAGER);
                 options.addArguments("--window-size=1920,1080","--disable-notifications");
                 if (headless){
                     options.addArguments("--headless=new");
