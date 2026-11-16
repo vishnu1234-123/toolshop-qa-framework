@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 import java.math.BigDecimal;
 
 public class ProductNavigationTest extends BaseTest {
-    @Test(description = "TC-046 | REQ-PO-01 | Clicking a product card opens that product's detail page")
+    @Test(description = "TC-046 | REQ-PO-01 | Clicking a product card opens that product's detail page",groups = "smoke")
     @Feature("Product browsing")
     @Story("REQ-PO-01 Product grid and navigation")
     @Severity(SeverityLevel.BLOCKER)

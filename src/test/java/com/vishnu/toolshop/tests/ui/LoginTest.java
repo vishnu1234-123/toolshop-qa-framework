@@ -8,7 +8,7 @@ import org.testng.annotations.Test;
 
 public class LoginTest extends BaseTest{
 
-    @Test(description = "TC-034 | REQ-AUTH-01 | Customer login redirects to /account")
+    @Test(description = "TC-034 | REQ-AUTH-01 | Customer login redirects to /account",groups = "smoke")
     public void customerLoginRedirectsToAccount(){
         LoginPage login=new LoginPage(driver).open().login(ConfigReader.get("customer.email"),ConfigReader.get("customer.password"));
         Assert.assertTrue(login.redirectedToAccount());

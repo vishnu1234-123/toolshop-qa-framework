@@ -15,7 +15,7 @@ import org.testng.annotations.Test;
 
 
 public class CheckoutTest extends BaseTest {
-    @Test(description = "TC-026 | REQ-CO-08 | Full checkout with Cash on Delivery shows an invoice number")
+    @Test(description = "TC-026 | REQ-CO-08 | Full checkout with Cash on Delivery shows an invoice number",groups = "smoke")
     @Feature("Checkout")
     @Story("REQ-CO-08 Successful order")
     @Severity(SeverityLevel.BLOCKER)

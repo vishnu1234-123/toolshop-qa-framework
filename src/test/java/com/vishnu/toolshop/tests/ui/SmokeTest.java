@@ -13,7 +13,7 @@ import java.util.List;
 
 public class SmokeTest extends BaseTest {
 
-    @Test(description = "Home page loads and shows product cards (REQ-PO-01)")
+    @Test(description = "Home page loads and shows product cards (REQ-PO-01)",groups = "smoke")
     public void homePageShowsProducts(){
         openApp();
 
