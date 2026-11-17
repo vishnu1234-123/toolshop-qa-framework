@@ -18,7 +18,7 @@ import static org.hamcrest.Matchers.notNullValue;
 
 public class ProductsApiTest {
 
-    @Test(groups = "api")
+    @Test(groups = {"api","smoke"})
     public void listReturnsProducts(){
         ProductsApi.list(Map.of())
                 .then()

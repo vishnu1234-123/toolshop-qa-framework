@@ -31,7 +31,7 @@ public class CheckoutApiTest {
         return cartId;
     }
 
-    @Test(groups="api")
+    @Test(groups={"api","smoke"})
     public void loggedInCustomerCanCreateInvoice() {
         String cartId = cartWithOneItem();
 

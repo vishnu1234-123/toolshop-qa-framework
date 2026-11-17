@@ -9,7 +9,7 @@ import static org.hamcrest.Matchers.not;
 
 public class LoginApiTest {
 
-    @Test(groups = "api")
+    @Test(groups = {"api","smoke"})
     public void validLoginReturnBearerToken(){
         AuthApi.login(ConfigReader.get("customer.email"),ConfigReader.get("customer.password"))
                 .then()

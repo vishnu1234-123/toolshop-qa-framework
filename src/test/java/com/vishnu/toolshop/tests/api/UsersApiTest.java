@@ -13,7 +13,7 @@ public class UsersApiTest {
         return AuthApi.token(ConfigReader.get("customer.email"),ConfigReader.get("customer.password"));
     }
 
-    @Test(groups = "api")
+    @Test(groups = {"api","smoke"})
     public void validTokenReturnsOwnProfile(){
         UsersApi.me(customerToken()).then().statusCode(200)
                 .body("email",equalTo(ConfigReader.get("customer.email")));
