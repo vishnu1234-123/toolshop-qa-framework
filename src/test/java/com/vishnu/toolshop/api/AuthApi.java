@@ -12,7 +12,7 @@ public class AuthApi {
         return given().spec(ApiSpec.base()).body(Map.of("email",email,"password",password)).when().post("/users/login");
     }
 
-    public String token(String email,String password){
+    public static String token(String email,String password){
         return login(email,password).then().statusCode(200).extract().path("access_token");
     }
 }
