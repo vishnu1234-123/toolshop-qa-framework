@@ -31,4 +31,18 @@ public class TestData {
         user.put("address", address);
         return user;
     }
+
+    public static Map<String,Object> invoice(String cartId,String paymentMethod){
+        Map<String, Object> invoice = new HashMap<>();
+        invoice.put("billing_street", "Alan Summit");
+        invoice.put("billing_city", "Altenwerthburgh");
+        invoice.put("billing_state", "Tennessee");
+        invoice.put("billing_country", "AS");
+        invoice.put("billing_postal_code", "1");
+        invoice.put("payment_method", paymentMethod);
+        invoice.put("payment_details", new HashMap<String, Object>());
+        invoice.put("cart_id", cartId);
+        return invoice;
+    }
+
 }

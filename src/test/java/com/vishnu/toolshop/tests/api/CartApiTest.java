@@ -14,11 +14,11 @@ import static org.hamcrest.Matchers.oneOf;
 
 
 public class CartApiTest {
-    @Test(groups = "api")
+
     private String newCartId(){
         return CartApi.create().then().statusCode(201).extract().path("id");
     }
-    @Test(groups = "api")
+
     private String anyProductId(){
         return ProductsApi.list(Map.of()).then().statusCode(200).extract().path("data[0].id");
     }
