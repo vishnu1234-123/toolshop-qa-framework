@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Toolshop Full-Stack Suite">
+    <listeners>
+        <listener class-name="com.vishnu.toolshop.listeners.TestListener"/>
+    </listeners>
+    <test name="Full-stack">
+        <packages>
+            <package name="com.vishnu.toolshop.tests.e2e"/>
+        </packages>
+    </test>
+</suite>
