@@ -46,4 +46,16 @@ public class LockoutDbTest {
         AuthApi.login(email,"wrong-password").then().statusCode(423);
         Assert.assertEquals(failedAttempts(email), 3, "counter kept growing after the lock");
     }
+
+    @Test(groups = "db")
+    public void successfulLoginResetsTheFailedAttemptCounter(){
+        String email=throwawayUser();
+        AuthApi.login(email,"wrong-password").then().statusCode(401);
+        AuthApi.login(email,"wrong-password").then().statusCode(401);
+        Assert.assertEquals(failedAttempts(email),2);
+
+        AuthApi.login(email,TestData.VALID_PASSWORD).then().statusCode(200);
+
+        Assert.assertEquals(failedAttempts(email),0,"counter was not reset by a successful login");
+    }
 }
