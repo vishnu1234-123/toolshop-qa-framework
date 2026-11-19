@@ -51,4 +51,23 @@ public class DbClient {
         return rows.isEmpty() ? null : rows.get(0).values().iterator().next();
     }
 
+    public static  int execute(String sql,Object... params){
+        String host=ConfigReader.get("db.host");
+        if (!host.equals("localhost") && !host.equals("127.0.0.1")){
+            throw new IllegalStateException("Refusing to modify a non-local database: "+host);
+        }
+
+        try(Connection conn=connect();PreparedStatement ps=conn.prepareStatement(sql)){
+            for(int i=0;i<params.length;i++){
+                ps.setObject(i+1,params[i]);
+            }
+
+            return ps.executeUpdate();
+        }catch (SQLException e){
+            throw new RuntimeException("DB update failed: "+sql+" -> "+e.getMessage(),e);
+        }
+
+
+    }
+
 }
