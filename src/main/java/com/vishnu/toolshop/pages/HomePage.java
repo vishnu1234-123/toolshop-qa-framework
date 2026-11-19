@@ -83,4 +83,9 @@ public class HomePage extends BasePage {
         return new ProductPage(driver);
     }
 
+    public ProductPage openProductById(String id){
+        driver.get(ConfigReader.get("ui.base.url")+"/product/"+id);
+        return new ProductPage(driver);
+    }
+
 }

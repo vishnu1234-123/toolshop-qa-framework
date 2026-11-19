@@ -1,5 +1,6 @@
 package com.vishnu.toolshop.tests.ui;
 
+import com.vishnu.toolshop.api.StockedProducts;
 import com.vishnu.toolshop.pages.CartPage;
 import com.vishnu.toolshop.pages.HomePage;
 import com.vishnu.toolshop.pages.ProductPage;
@@ -13,7 +14,7 @@ public class CartTest extends  BaseTest{
 
     @Test(description = "TC-014 | REQ-CO-01 | Changing quantity recalculates line and cart totals")
     public void changingQuantityRecalculatesTotals(){
-        ProductPage product=new HomePage(driver).open().openProduct(0).addToCart();
+        ProductPage product=new HomePage(driver).openProductById(StockedProducts.ids().get(0)).addToCart();
         product.addedMessage();
         CartPage cart=product.goToCart();
 
@@ -31,9 +32,9 @@ public class CartTest extends  BaseTest{
         HomePage page=new HomePage(driver).open();
         String secondName=page.nameOfProduct(1);
 
-        ProductPage firstProduct=page.openProduct(0).addToCart();
+        ProductPage firstProduct=page.openProductById(StockedProducts.ids().get(0)).addToCart();
         firstProduct.addedMessage();
-        ProductPage secondProduct=new HomePage(driver).open().openProduct(1).addToCart();
+        ProductPage secondProduct=new HomePage(driver).openProductById(StockedProducts.ids().get(1)).addToCart();
         secondProduct.addedMessage();
 
         CartPage cart= secondProduct.goToCart();

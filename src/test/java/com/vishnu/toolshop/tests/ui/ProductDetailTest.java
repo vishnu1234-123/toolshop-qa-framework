@@ -2,6 +2,7 @@ package com.vishnu.toolshop.tests.ui;
 
 import com.vishnu.toolshop.pages.HomePage;
 import com.vishnu.toolshop.pages.ProductPage;
+import com.vishnu.toolshop.api.StockedProducts;
 import com.vishnu.toolshop.tests.BaseTest;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -10,7 +11,7 @@ import org.testng.annotations.Test;
 public class ProductDetailTest extends BaseTest {
 
     private ProductPage openFirstProduct(){
-       return new HomePage(driver).open().openProduct(0);
+       return new HomePage(driver).openProductById(StockedProducts.ids().get(0));
     }
 
     @Test(description = "TC-007 | REQ-PD-02 | Default quantity is 1")

@@ -1,5 +1,6 @@
 package com.vishnu.toolshop.tests.ui;
 
+import com.vishnu.toolshop.api.StockedProducts;
 import com.vishnu.toolshop.config.ConfigReader;
 import com.vishnu.toolshop.pages.CheckoutPage;
 import com.vishnu.toolshop.pages.HomePage;
@@ -23,7 +24,7 @@ public class CheckoutTest extends BaseTest {
         LoginPage login =new LoginPage(driver).open().login(ConfigReader.get("customer.email"),ConfigReader.get("customer.password"));
         Assert.assertTrue(login.redirectedToAccount(),"Login did not reach the account page");
 
-        ProductPage product = new HomePage(driver).open().openProduct(0).addToCart();
+        ProductPage product = new HomePage(driver).openProductById(StockedProducts.ids().get(0)).addToCart();
         product.addedMessage();
 
         CheckoutPage checkout=product.goToCart().proceedToCheckout();
