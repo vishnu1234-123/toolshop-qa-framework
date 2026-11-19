@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Toolshop Mail Suite">
+    <test name="Mail tests">
+        <groups>
+            <run>
+                <exclude name="known-issue"/>
+            </run>
+        </groups>
+        <packages>
+            <package name="com.vishnu.toolshop.tests.mail"/>
+        </packages>
+    </test>
+</suite>
