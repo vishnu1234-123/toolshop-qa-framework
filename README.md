@@ -13,7 +13,7 @@ One framework, five layers: UI, API, database, email and (coming) performance an
 | Email | MailCatcher API, polling | Registration email content |
 | Reporting | Allure | Screenshots, page text, requests and responses attached to failures |
 
-Planned: JMeter load tests, GitHub Actions CI, OWASP ZAP security scan.
+Planned: GitHub Actions CI, OWASP ZAP security scan.
 
 ## How the work was organized
 
@@ -64,3 +64,49 @@ Pick a suite with `-Dsuite.file`:
 Postman collection: `newman run postman/toolshop-api.postman_collection.json -e postman/toolshop-local.postman_environment.json`
 
 Reports: `mvn allure:serve` after any run.
+
+## Performance testing (JMeter)
+
+One parameterized plan, `jmeter/toolshop-load.jmx`, simulates a shopping session per virtual user:
+list products (extracts a product id), search, open that product, log in (extracts the token), then fetch the profile with
+the token. Every step asserts HTTP 200. The plan is read-only, so it does not use up product stock. Users, ramp-up, loops
+and think time are properties, so one file covers every test type:
+
+    jmeter -n -t jmeter/toolshop-load.jmx -Jthreads=50 -Jrampup=2 -Jloops=5 \
+      -l target/jmeter/spike/results.jtl -e -o target/jmeter/spike/report
+
+(Login uses the seeded demo customer; override with `-Jemail=... -Jpassword=...`.)
+
+### Results
+
+JMeter, the app and its database all ran on one laptop with nothing else using the CPU, so these numbers describe this
+setup and not the application's true capacity. No SLA exists, so I assumed p95 under 500 ms and errors under 1%.
+
+| Test | Users / ramp-up | Requests | Errors | Avg | p95 | p99 | Throughput |
+|---|---|---|---|---|---|---|---|
+| Load | 20 / 20 s | 2,000 | 0% | 25 ms | 75 ms | 105 ms | 27.9/s |
+| Spike | 50 / 2 s | 1,250 | 0% | 36 ms | 109 ms | 185 ms | 84.5/s |
+| Breakpoint step 1 | 100 / 30 s | 5,000 | 0% | 32 ms | 79 ms | 324 ms | 90.1/s |
+| Breakpoint step 2 | 200 / 30 s | 10,000 | 0% | 161 ms | 395 ms | 447 ms | 164.5/s |
+| Breakpoint step 3 | 400 / 30 s | 20,000 | 0% | 920 ms | 1,472 ms | 1,544 ms | 202.5/s |
+| Soak | 50 / 30 s, about 10 min | 50,000 | 0% | 28 ms | 78 ms | 117 ms | 89.4/s |
+
+### What the numbers show
+
+- The p95 target is met up to 200 users and missed at 400. The breakpoint under the assumed target lies between 200 and 400 users.
+- Throughput flattens at about 200 requests/s: doubling users from 200 to 400 raised it only about 23% while response times
+  rose several times over. Requests queue and are not rejected, so errors stay at 0% even where the app is clearly too slow.
+- At saturation every endpoint slows by the same amount, so the limit is shared. The API container was at about 330% CPU
+  while the database was at about 3%.
+- The soak run had no errors and response times matched the short load run.
+- At light load, login is the slowest request (about 75 ms against about 15 ms for the GETs).
+
+### Lesson: check the environment before trusting numbers
+
+An unrelated container from another project was using about 2.3 CPU cores at idle. With it running, the 200-user step
+gave p95 886 ms; after stopping it, p95 was 395 ms. All results above were taken after stopping it.
+
+### Not covered
+
+Volume testing (the dataset is small) and scalability testing (needs an environment that can add instances) are out of
+scope here. Stress testing beyond 400 users was not needed once the breakpoint and saturation were found.
