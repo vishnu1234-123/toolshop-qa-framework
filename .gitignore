@@ -7,3 +7,5 @@ allure-report/
 logs/
 screenshots/
 *.log
+
+.allure/
