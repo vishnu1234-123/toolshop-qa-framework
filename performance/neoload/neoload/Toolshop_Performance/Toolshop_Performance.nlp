@@ -1,0 +1,16 @@
+# Project description file
+
+project.name=Toolshop_Performance
+project.version=8.11
+project.original.version=8.11
+product.name=NeoLoad
+product.original.name=NeoLoad
+ssh.trustUnknownHosts.MONITORS=false
+monitor.tls.insecure=false
+product.version=2026.2.1
+product.original.version=2026.2.1
+project.is-open-test-settings-after-upload=false
+project.id=c273718b-d0f5-489d-b4f9-ab5421309177
+project.config.path=config.zip
+project.config.storage=ZIP
+team.server.enabled=false

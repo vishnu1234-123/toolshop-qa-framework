@@ -9,3 +9,7 @@ screenshots/
 *.log
 
 .allure/
+
+# NeoLoad run results and automatic backups
+performance/neoload/**/results/
+performance/neoload/**/*.bak

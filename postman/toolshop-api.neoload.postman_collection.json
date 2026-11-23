@@ -1,0 +1,544 @@
+{
+  "info": {
+    "_postman_id": "a5646ed3-1282-4fa1-8dff-cf49b17b811d",
+    "name": "Toolshop API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "41473732"
+  },
+  "item": [
+    {
+      "name": "Login - valid",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const json = pm.response.json();",
+              "pm.environment.set(\"token\", json.access_token);",
+              "console.log(\"token saved:\", pm.environment.get(\"token\") ? \"yes\" : \"no\");",
+              "",
+              "pm.test(\"Status is 200\",()=>pm.response.to.have.status(200));",
+              "pm.test(\"Returns a bearer token\",()=> {",
+              "    const json=pm.response.json();",
+              "    pm.expect(json.access_token).to.be.a(\"string\").and.not.empty;",
+              "    pm.expect(json.token_type).to.eql(\"bearer\");",
+              "    });",
+              "pm.test(\"Token expires in 300 seconds\",()=>{",
+              "    pm.expect(pm.response.json().expires_in).to.eql(300);",
+              "});",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\": \"{{customerEmail}}\", \"password\": \"{{customerPassword}}\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/users/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "users",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get my profile",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const baseUrl=pm.environment.get(\"baseUrl\");",
+              "const expiry=pm.environment.get(\"tokenExpiry\");",
+              "",
+              "if(!pm.environment.get(\"token\") || !expiry || Date.now()>Number(expiry)){",
+              "    pm.sendRequest({",
+              "        url:baseUrl+\"/users/login\",",
+              "        method:\"POST\",",
+              "        header:{\"Content-Type\":\"applications/json\"},",
+              "        body:{",
+              "            mode:\"raw\",",
+              "            raw:JSON.stringify({",
+              "                email:pm.environment.get(\"customerEmail\"),",
+              "                password:pm.environment.get(\"customerPassword\")",
+              "            })",
+              "        }",
+              "    },(err,res)=>{",
+              "        if(!err && res.code==200){",
+              "            const json=res.json();",
+              "            pm.environment.set(\"token\",json.access_token);",
+              "            pm.environment.set(\"tokenExpiry\", Date.now() + (json.expires_in - 30) * 1000);",
+              "        }",
+              "    }",
+              "    )",
+              "    ",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Profile belongs to the logged-in customer\", () => {",
+              "    pm.expect(pm.response.json().email).to.eql(pm.environment.get(\"customerEmail\"));",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/users/me",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "users",
+            "me"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Products - list",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200\",()=>pm.response.to.have.status(200));",
+              "pm.test(\"Responds in under 1000 ms\",()=>pm.expect(pm.response.responseTime).to.be.below(1000));",
+              "pm.test(\"Returns a non empty product list\",()=>{",
+              "    const json=pm.response.json();",
+              "    pm.expect(json.data).to.be.an(\"array\").that.is.not.empty;",
+              "})",
+              "",
+              "pm.test(\"Each product has id,name and price\",()=>{",
+              "    pm.response.json().data.forEach(p=>{",
+              "        pm.expect(p).to.have.property(\"id\");",
+              "        pm.expect(p).to.have.property(\"name\");",
+              "        pm.expect(p.price).to.be.a(\"number\");",
+              "    });",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/products",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "products"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Products - search",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200\",()=>pm.response.to.have.status(200));",
+              "pm.test(\"At least one result matches the search term\",()=>{",
+              "    const names=pm.response.json().data.map(p=>p.name.toLowerCase());",
+              "    pm.expect(names.some(n=>n.includes(\"pli\"))).to.be.true;",
+              "})"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/products/search?q=pli",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "products",
+            "search"
+          ],
+          "query": [
+            {
+              "key": "q",
+              "value": "pli"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Products -by id",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200\",()=>pm.response.to.have.status(200));",
+              "pm.test(\"Returns one product with name and numeric price\",()=>{",
+              "    const p=pm.response.json();",
+              "    pm.expect(p.name).to.be.a(\"string\").and.not.empty;",
+              "    pm.expect(p.price).to.be.a(\"number\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/products/01M73FKB8B9PTY98ZT09T2MT48",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "products",
+            "01M73FKB8B9PTY98ZT09T2MT48"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Login - wrong password",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 401\", () => pm.response.to.have.status(401));",
+              "pm.test(\"No token is issued\", () => {",
+              "    pm.expect(pm.response.json()).to.not.have.property(\"access_token\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"email\":\"username@gmail.com\",\n    \"password\":\"testPassword\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/users/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "users",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Profile - no token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 401\", () => pm.response.to.have.status(401));"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/users/me",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "users",
+            "me"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Products - invalid id",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Unknown product return 404\",()=>pm.response.to.have.status(404));"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/products/123",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "products",
+            "123"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Products - search no match",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200\",()=>pm.response.to.have.status(200));",
+              "pm.test(\"No results are returned\",()=>{",
+              "    pm.expect(pm.response.json().data).to.be.a(\"array\").that.is.empty;",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/products/search?q=zzzzz",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "products",
+            "search"
+          ],
+          "query": [
+            {
+              "key": "q",
+              "value": "zzzzz"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Login - unknown user",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Unknown user returns 401\", () => pm.response.to.have.status(401));"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\": \"nobody@example.com\", \"password\": \"whatever\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/users/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "users",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Profile - garbage token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Invalid token return 401\",()=>pm.response.to.have.status(401))"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "text",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/users/me",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "users",
+            "me"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Users list - customer is forbidden",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Customer is forbidden (403)\",()=>pm.response.to.have.status(403));",
+              "pm.test(\"Message says forbidden\",()=>pm.response.json().message===\"Forbidden\");"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/users",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "users"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8091"
+    },
+    {
+      "key": "customerEmail",
+      "value": "customer@practicesoftwaretesting.com"
+    },
+    {
+      "key": "customerPassword",
+      "value": "welcome01"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ]
+}
