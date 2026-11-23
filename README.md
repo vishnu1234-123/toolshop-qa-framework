@@ -1,7 +1,7 @@
 # Toolshop QA Framework
 
 End-to-end test automation for the [Practice Software Testing](https://github.com/testsmith-io/practice-software-testing) (Toolshop) web shop, running locally in Docker.
-One framework, five layers: UI, API, database, email and (coming) performance and security.
+One framework, five layers: UI, API, database, email, performance and (coming) security.
 
 ## What it covers
 
@@ -11,6 +11,7 @@ One framework, five layers: UI, API, database, email and (coming) performance an
 | API | REST Assured, Postman and Newman | Auth, products, cart, invoices, lockout, password rules, JSON schema |
 | Database | JDBC, SQL (MariaDB) | Integrity checks, API to DB cross-checks for users and invoices |
 | Email | MailCatcher API, polling | Registration email content |
+| Performance | JMeter, NeoLoad | Load, spike, breakpoint, soak; JMeter vs NeoLoad comparison |
 | Reporting | Allure | Screenshots, page text, requests and responses attached to failures |
 
 Planned: GitHub Actions CI, OWASP ZAP security scan.
@@ -110,3 +111,21 @@ gave p95 886 ms; after stopping it, p95 was 395 ms. All results above were taken
 
 Volume testing (the dataset is small) and scalability testing (needs an environment that can add instances) are out of
 scope here. Stress testing beyond 400 users was not needed once the breakpoint and saturation were found.
+
+## Performance testing (NeoLoad)
+
+The same five-step shopping journey is also built in NeoLoad (project in `performance/neoload`, imported from
+`postman/toolshop-api.neoload.postman_collection.json`). Login extracts the token with a JSONPath variable extractor,
+500 ms delays model think time, and one population runs the path at 100%. The free trial allows 50 concurrent users, so
+these are smaller tests than the JMeter breakpoint runs, and the trial showed no p90/p95/p99, so percentiles come from JMeter.
+
+| Test | Users | Duration | Requests | Errors | Avg | Max |
+|---|---|---|---|---|---|---|
+| Baseline | 1 | 1 min | 111 | 0 | 32 ms | 366 ms |
+| Load (ramp 2 to 20) | 20 | 5 min | 9,512 | 0 | 32 ms | 444 ms |
+| Spike | 50 | 2 min | 10,230 | 0 | 77 ms | 1.76 s |
+| Soak | 20 | 10 min | 22,398 | 0 | 31 ms | 979 ms |
+
+At 20 users both tools agree (about 25-32 ms average). During the 50-user spike the API container was the busiest part
+(around 70% CPU at the first reading), while MariaDB stayed under 4%. Memory stayed flat during the soak.
+Full comparison: [docs/performance-results.md](docs/performance-results.md).
