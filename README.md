@@ -129,3 +129,12 @@ these are smaller tests than the JMeter breakpoint runs, and the trial showed no
 At 20 users both tools agree (about 25-32 ms average). During the 50-user spike the API container was the busiest part
 (around 70% CPU at the first reading), while MariaDB stayed under 4%. Memory stayed flat during the soak.
 Full comparison: [docs/performance-results.md](docs/performance-results.md).
+
+NeoLoad SLA: a `Toolshop_SLA` profile (average request response time under 500 ms, error rate under 1%) is applied
+to the requests in the user path, and each run is checked against it. Averages stayed far under the limit (login about
+80 ms, the other requests about 20 ms) with 0 errors.
+
+NeoLoad monitoring: the built-in graph records CPU and memory of the load generator host. NeoLoad's MySQL monitor connects
+to the MariaDB container but fails when reading counters (a MySQL/MariaDB incompatibility), and there is no Docker monitor
+for macOS, so per-container CPU and memory came from `docker stats` readings taken during runs. The API container was the
+busiest part (about 55-85% CPU at 20 users, about 70% or more at 50) while MariaDB stayed under 4%.
