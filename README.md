@@ -130,8 +130,8 @@ At 20 users both tools agree (about 25-32 ms average). During the 50-user spike 
 (around 70% CPU at the first reading), while MariaDB stayed under 4%. Memory stayed flat during the soak.
 Full comparison: [docs/performance-results.md](docs/performance-results.md).
 
-NeoLoad SLA: a `Toolshop_SLA` profile (average request response time under 500 ms, error rate under 1%) is applied
-to the requests in the user path, and each run is checked against it. Averages stayed far under the limit (login about
+NeoLoad SLA: two profiles, `avg req rsp time` (average request response time under 500 ms) and `error rate`
+(under 1%), are applied to the requests in the user path, and each run is checked against them. Averages stayed far under the limit (login about
 80 ms, the other requests about 20 ms) with 0 errors.
 
 NeoLoad monitoring: the built-in graph records CPU and memory of the load generator host. NeoLoad's MySQL monitor connects
