@@ -52,6 +52,10 @@ jobs:
           done
           echo "database or dependencies are not ready in time"; exit 1
 
+      - name: Make Laravel storage writable
+        working-directory: toolshop-app
+        run: docker compose exec -T -u root laravel-api chmod -R 777 storage bootstrap/cache
+
       - name: Seed the database
         working-directory: toolshop-app
         run: docker compose exec -T laravel-api php artisan migrate:fresh --seed
