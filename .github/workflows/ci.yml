@@ -84,7 +84,7 @@ jobs:
           echo "=== container status ==="
           docker compose ps
           echo "=== response body of GET/products ==="
-          curl -s -i http://localhost:8091/products | head -c 250 || true
+          curl -s -i http://localhost:8091/products | head -c 2500 || true
           echo
           echo "=== laravel log ==="
           docker compose exec -T laravel-api sh -c "ls -la storage/logs;
@@ -92,5 +92,25 @@ jobs:
           echo "=== api and web container logs ==="
           docker compose logs --tail=60 laravel-api web || true
           
-          
+
+      - name: Reproduce the 500 with errors shown
+        if: always()
+        working-directory: toolshop-app
+        run: |
+          cat > /tmp/repro.php <<'PHP'
+          <?php
+          error_reporting(E_ALL);
+          ini_set('display_errors','1');
+          require 'vendor/autoload.php';
+          $app=require 'bootstrap/app.php';
+          $kernel=$app->make(Illuminate\Contracts\Http\Kernel::class);
+          $response=$kernel-> handle(Illuminate\Http\Request::create('/products','GET'));
+          echo $response -> getStatusCode(),"\n",substr($response->getContent(),0,2000),"\n";
+          PHP
+          echo "=== files and permissions ==="
+          docker compose exec -T laravel-api sh -c "pwd; ls -la; ls -la storage storage/framework bootstrap/cache" || true
+          echo "=== app and db environment (secrets hidden) ==="
+          docker compose exec -T laravel-api sh -c "printenv | grep -E '^(APP_|DB_|JWT_)' | sed -E 's/(KEY|PASSWORD|SECRET)=.*/\1=***/'" || true
+          echo "=== run the request through the framework ==="
+          docker compose exec -T laravel-api php < /tmp/repro.php || true
        
