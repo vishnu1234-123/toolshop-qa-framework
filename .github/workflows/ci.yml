@@ -117,4 +117,30 @@ jobs:
           docker compose exec -T laravel-api sh -c "printenv | grep -E '^(APP_|DB_|JWT_)' | sed -E 's/(KEY|PASSWORD|SECRET)=.*/\1=***/'" || true
           echo "=== run the request through the framework ==="
           docker compose exec -T laravel-api php < /tmp/repro.php || true
+
+      - name: Show container status and logs if anything failed
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: API tests
+        env:
+          DB_PORT: '3306'
+          HEADLESS: 'true'
+        run: mvn -B -ntp clean test -Dsuite.file=src/test/resources/api.xml
+
+      - name: Save test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            target/surefire-reports
+            target/allure-results
+          if-no-files-found: warn
+
+
+
        
