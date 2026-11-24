@@ -20,3 +20,60 @@ jobs:
 
       - name: Compile main and test code
         run: mvn -B -ntp test-compile
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      SPRINT: sprint5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check out the Toolshop app (pinned version)
+        uses: actions/checkout@v4
+        with:
+          repository: testsmith-io/practice-software-testing
+          ref: ae7caecb811dd8952c09d997e69be7cb946ecd44
+          path: toolshop-app
+
+      - name: Start the app
+        working-directory: toolshop-app
+        run: docker compose up -d
+
+      - name: Wait for database and PHP dependencies
+        working-directory: toolshop-app
+        run: |
+          for i in $(seq i 60); do
+            if docker compose exec -T mariadb mysqladmin ping -uroot -proot --silent \
+          && docker compose exec -T laravel-api test -f vendor/autoload.php; then
+            echo "database and dependecies are ready"; exit 0
+          fi
+            sleep 5
+          done
+          echo "database or dependencies are not ready in time"; exit 1
+
+      - name: Seed the database
+        working-directory: toolshop-app
+        run: docker compose exec -T laravel-api php artisan migrate:fresh --seed
+
+      - name: Wait for API,UI and MailCatcher
+        run: |
+          wait_for(){
+            for i in $(seq 1 90); do
+              if curl -fsS -o /dev/null "$1"; then echo "$2 is up";
+          return 0; fi
+            sleep 5
+          done
+          echo "$2 did not come up"; return 1
+          }
+          wait_for http://localhost:8091/products API
+          wait_for http://localhost:4200 UI
+          wait_for http://localhost:1080 MailCatcher
+
+      - name: Show container status and logs if anything failed
+        if: failure()
+        working-directory: toolshop-app
+        run: |
+          docker compose ps
+          docker compose logs --tail=80
+       
