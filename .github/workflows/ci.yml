@@ -76,4 +76,21 @@ jobs:
         run: |
           docker compose ps
           docker compose logs --tail=80
+
+      - name: Diagnostics (always runs)
+        if: always()
+        working-directory: toolshop-app
+        run: |
+          echo "=== container status ==="
+          docker compose ps
+          echo "=== response body of GET/products ==="
+          curl -s -i http://localhost:8091/products | head -c 250 || true
+          echo
+          echo "=== laravel log ==="
+          docker compose exec -T laravel-api sh -c "ls -la storage/logs;
+          tail -n 60 storage/logs/*.log" || true
+          echo "=== api and web container logs ==="
+          docker compose logs --tail=60 laravel-api web || true
+          
+          
        
