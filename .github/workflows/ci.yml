@@ -141,6 +141,13 @@ jobs:
             target/allure-results
           if-no-files-found: warn
 
+      - name: Database tests
+        env:
+          DB_PORT: '3306'
+          HEADLESS: 'true'
+        run: mvn -B -ntp test -Dsuite.file=src/test/resources/db.xml
+
+
 
 
        
