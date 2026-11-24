@@ -147,6 +147,22 @@ jobs:
           HEADLESS: 'true'
         run: mvn -B -ntp test -Dsuite.file=src/test/resources/db.xml
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Postman collection (Newman)
+        run: >
+          npx --yes newman run postman/toolshop-api.postman_collection.json
+          -e postman/toolshop-local.postman_environment.json
+          --reporters cli,junit
+          --reporter-junit-export target/newman/results.xml
+
+        path: |
+          target/surefire-reports
+          target/allure-results
+          target/newman
+
 
 
 
