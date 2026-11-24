@@ -158,10 +158,15 @@ jobs:
           --reporters cli,junit
           --reporter-junit-export target/newman/results.xml
 
-        path: |
-          target/surefire-reports
-          target/allure-results
-          target/newman
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: |
+            target/surefire-reports
+            target/allure-results
+            target/newman
 
 
 
