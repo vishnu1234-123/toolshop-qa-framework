@@ -155,7 +155,8 @@
 							"        pm.expect(p).to.have.property(\"name\");",
 							"        pm.expect(p.price).to.be.a(\"number\");",
 							"    });",
-							"});"
+							"});",
+							"pm.collectionVariables.set(\"productId\", pm.response.json().data[0].id);"
 						],
 						"type": "text/javascript",
 						"packages": {}
@@ -240,13 +241,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/products/01M73FKB8B9PTY98ZT09T2MT48",
+					"raw": "{{baseUrl}}/products/{{productId}}",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"products",
-						"01M73FKB8B9PTY98ZT09T2MT48"
+						"{{productId}}"
 					]
 				}
 			},
