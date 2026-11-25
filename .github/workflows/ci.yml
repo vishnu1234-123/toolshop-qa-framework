@@ -168,6 +168,12 @@ jobs:
             target/allure-results
             target/newman
 
+      - name: UI tests (Selenium, headless Chrome)
+        env:
+          DB_PORT: '3306'
+          HEADLESS: 'true'
+        run: mvn -B -ntp test
+
 
 
 
